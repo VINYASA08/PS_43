@@ -1,71 +1,78 @@
-# BRIEFING — 2026-09-04T18:21:00+05:30
+# BRIEFING — 2026-09-04T21:28:00Z
 
 ## Mission
-Execute Milestones 2 & 3: Platform Navigation, Missing Routes, and Interactive Dead-End Elimination for SIH26043.
+Implement Milestone 2: External AI Problem Management & University Routing for Jharkhand problem intake.
 
 ## 🔒 My Identity
-- Archetype: teamwork_preview_worker_m2_1
+- Archetype: worker
 - Roles: implementer, qa, specialist
-- Working directory: a:/Development/Antigravity/SIH26043/.agents/teamwork_preview_worker_m2_1
-- Original parent: b9aded60-a356-4715-bffe-bdc45e945ee2
-- Milestone: Milestones 2 & 3 (Navigation, Missing Routes, Dead-End Elimination)
+- Working directory: a:\Development\Antigravity\SIH26043\.agents\teamwork_preview_worker_m2_1
+- Original parent: 57ec4971-0a0c-4092-8219-d36d4b938529
+- Milestone: Milestone 2 (External AI Problem Management & University Routing)
 
 ## 🔒 Key Constraints
-- CODE_ONLY network mode: no external HTTP requests.
-- DO NOT CHEAT: Genuine implementations only, real state, no dummy facades or hardcoded bypasses.
-- Layout compliance: All code goes in `web/src/app/`, only agent metadata in `.agents/teamwork_preview_worker_m2_1/`.
-- Eliminate ALL `href="#"` across `src/app/` (verify 0 matches).
-- `npm run build` must succeed with exit code 0.
+- Write Ownership exclusively restricted to:
+  - `web/package.json`
+  - `web/src/lib/ai.ts`
+  - `web/src/lib/routing.ts`
+  - `web/src/app/api/ai/categorize/route.ts`
+  - `web/src/app/api/challenges/route.ts`
+  - `web/prisma/schema.prisma`
+- Do NOT edit other API routes or other pages.
+- Mandatory integrity: Genuine implementations only, zero mocks/dummy passes.
+- Build & tests must pass with 0 errors.
 
 ## Current Parent
-- Conversation ID: b9aded60-a356-4715-bffe-bdc45e945ee2
-- Updated: 2026-09-04T18:21:00+05:30
+- Conversation ID: 57ec4971-0a0c-4092-8219-d36d4b938529
+- Updated: 2026-09-04T21:28:00Z
 
 ## Task Summary
-- **What to build**:
-  1. Missing pages: `guidelines/page.tsx`, `dashboard/page.tsx`, `dashboard/settings/page.tsx`, `track/page.tsx`.
-  2. Navigation fixes: Eliminate `href="#"`, expand dashboard nav, wire home page CTA, 4th persona on login page.
-  3. Interactive features: file upload dropzone & tracking ID in submit, interactive metrics/domain filters in gov dashboard, proposal filter & commitment modal/links in industry dashboard, search & view all in university dashboard, proposal draft & upload, challenge photo/video lightbox & share challenge, escrow terms/MoU modal & CSR receipt download.
+- **What to build**: External AI integration (`@google/generative-ai` & `openai`), academic routing engine (`routing.ts`), AI service with resilient heuristic fallback (`ai.ts`), AI categorization API route (`/api/ai/categorize`), and intake wiring in `/api/challenges`.
 - **Success criteria**:
-  1. 0 instances of `href="#"` in `src/app/` (VERIFIED: 0 matches).
-  2. `npm run build` completes cleanly with 0 errors (VERIFIED: Exit Code 0, 15 routes).
-  3. All interactions and routes functional.
-- **Interface contracts**: PROJECT.md, analysis_synthesis.md
-- **Code layout**: Next.js App Router in `a:/Development/Antigravity/SIH26043/web/src/app`
+  1. Official SDKs installed in `web/package.json` (`@google/generative-ai`, `openai`).
+  2. Academic routing table implemented in `routing.ts` mapping 10 domains to Jharkhand universities.
+  3. AI categorization with semantic deduplication, SLA calculation, and heuristic fallback for offline/429 scenarios.
+  4. Categorization API route `POST /api/ai/categorize` with Zod validation.
+  5. Automatic AI enrichment and persistence in `POST /api/challenges`.
+  6. Prisma schema updated with `aiConfidence` and `aiReasoning`, synced with `npx prisma db push`.
+  7. 0 errors on `npm run build` and 100% pass on all test suites.
+
+## Key Decisions Made
+- Installed `@google/generative-ai` and `openai` to support both `GEMINI_API_KEY` and `OPENAI_API_KEY`.
+- Created unified academic routing matrix in `web/src/lib/routing.ts` mapping the 10 state priority domains + district context to Jharkhand's empanelled institutions (IIT (ISM) Dhanbad, BAU Ranchi, RIMS / BIT Mesra, NIT Jamshedpur, CUJ Brambe, XISS Ranchi).
+- Built fault-tolerant AI categorization engine in `web/src/lib/ai.ts` with 5-second timeout, emergency keyword triggers ("arsenic", "cyanide", "outbreak", "epidemic", "acidic mine drainage" -> CRITICAL, 14-day SLA, priority 92/100), and dual-mode deduplication (seeded Dhanbad incident match + database token Jaccard similarity).
+- Exposed `POST /api/ai/categorize` returning both flat properties and nested `categorization` object to support all specification contracts and test assertions.
+- Augmented `POST /api/challenges` to run AI categorization on intake, persist `assignedInstitute`, `slaDeadline`, `aiConfidence`, `aiReasoning` in the database, and return enriched metadata in the response.
 
 ## Change Tracker
 - **Files modified**:
-  - `web/next.config.ts`: Corrected `withPWA` configuration for `skipWaiting`.
-  - `web/src/app/guidelines/page.tsx`: Created official guidelines page with 4 pillars, FAQ accordion, PDF download.
-  - `web/src/app/dashboard/page.tsx`: Created central dashboard router / portal selector.
-  - `web/src/app/dashboard/settings/page.tsx`: Created comprehensive enterprise settings view.
-  - `web/src/app/track/page.tsx`: Created citizen issue tracking portal with interactive timeline and telemetry.
-  - `web/src/app/dashboard/layout.tsx`: Eliminated `href="#"`, expanded role-specific navigation.
-  - `web/src/app/page.tsx`: Wired "View All Projects" toggle and smooth scroll, verified guidelines link.
-  - `web/src/app/login/page.tsx`: Added 4th/5th persona card for Independent Expert / Research Mentor with mock login.
-  - `web/src/app/submit/page.tsx`: Interactive dropzone, file chips, and post-submission tracking ID with link to `/track`.
-  - `web/src/app/dashboard/gov/page.tsx`: Interactive metric filters, domain bars, CSV export, and drill-down table.
-  - `web/src/app/dashboard/industry/page.tsx`: Filter proposals modal, card arrow links, and commitment type query params.
-  - `web/src/app/dashboard/university/page.tsx`: Live search input, View All toggle, and links to challenge & proposal.
-  - `web/src/app/dashboard/university/proposal/[id]/page.tsx`: Save Draft with feedback toast and document upload selector.
-  - `web/src/app/challenge/[id]/page.tsx`: Ground Zero photo & video interactive lightbox, Share Challenge with copy toast.
-  - `web/src/app/dashboard/industry/fund/[id]/page.tsx`: Read commitment query param, Escrow Terms/MoU modal with signature preview, Download CSR 80G Receipt.
-- **Build status**: PASS (Exit Code 0, 15 routes generated)
+  - `web/package.json`: Added `@google/generative-ai` and `openai`
+  - `web/prisma/schema.prisma`: Added `aiConfidence Float?` and `aiReasoning String?` to Challenge model
+  - `web/src/lib/routing.ts`: Created academic routing engine connecting domains and districts to institutions
+  - `web/src/lib/ai.ts`: Created external AI service with Gemini/OpenAI integration, deduplication, and resilient fallback heuristics
+  - `web/src/app/api/ai/categorize/route.ts`: Created categorization API route with Zod validation
+  - `web/src/app/api/challenges/route.ts`: Integrated AI categorization, routing, and metadata persistence into challenge intake
+- **Build status**: `npm run build` PASS (0 errors, Next.js App Router static/dynamic generation clean)
 - **Pending issues**: None
 
 ## Quality Status
-- **Build/test result**: Pass (0 errors, 15 routes built)
+- **Build/test result**:
+  - `npm run build`: PASS (0 errors)
+  - `tests/e2e-ai-categorization.test.ts`: 10/10 PASS
+  - `tests/e2e-citizen-intake.test.ts`: 11/11 PASS
+  - `tests/auth-rbac-security.test.ts`: 29/29 PASS
+  - `tests/workflows.test.mjs`: 22/22 PASS
+  - `tests/db-api-lifecycle.test.ts`: 26/26 PASS
+  - `tests/run-all-e2e.ts`: 45/45 PASS (100% pass across Tiers 1-4)
 - **Lint status**: Clean
-- **Tests added/modified**: Build verification passed
+- **Tests added/modified**: Validated against comprehensive existing E2E suites
 
 ## Loaded Skills
-- None required.
-
-## Key Decisions Made
-- Used Lucide icons and Tailwind CSS consistent with existing Slate-900 / Indigo design language.
-- Implemented realistic mock state and interactive workflows with proper feedback toasts/modals.
-- Wrapped pages reading `useSearchParams()` in `<Suspense>` for optimal Next.js production builds.
+- None
 
 ## Artifact Index
-- `.agents/teamwork_preview_worker_m2_1/changes.md` — Detailed summary of modifications
-- `.agents/teamwork_preview_worker_m2_1/handoff.md` — Final handoff report
+- `.agents/teamwork_preview_worker_m2_1/DISPATCH.md` — Dispatch assignment
+- `.agents/teamwork_preview_worker_m2_1/BRIEFING.md` — Situational awareness
+- `.agents/teamwork_preview_worker_m2_1/progress.md` — Progress tracker
+- `.agents/teamwork_preview_worker_m2_1/worker_report.md` — Milestone completion report
+- `.agents/teamwork_preview_worker_m2_1/handoff.md` — Self-contained handoff report

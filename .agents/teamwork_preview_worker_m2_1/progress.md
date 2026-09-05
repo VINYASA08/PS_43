@@ -1,28 +1,18 @@
-# Progress Log
+# Progress: Milestone 2 (External AI Problem Management & University Routing)
+Last visited: 2026-09-04T21:28:15Z
 
-Last visited: 2026-09-04T18:21:00+05:30
+## Current Status
+Milestone 2 fully implemented, verified, and passing all build and test suites with 0 errors.
 
-## Status: Completed (Milestones 2 & 3 Done)
-- [x] Initialized ORIGINAL_REQUEST.md & BRIEFING.md
-- [x] Inspect existing codebase and scope documents
-- [x] Implement Task 1: Missing Pages
-  - [x] `src/app/guidelines/page.tsx`
-  - [x] `src/app/dashboard/page.tsx`
-  - [x] `src/app/dashboard/settings/page.tsx`
-  - [x] `src/app/track/page.tsx`
-- [x] Implement Task 2: Navigation & `href="#"` Elimination & 4th Persona
-  - [x] `src/app/dashboard/layout.tsx` (Eliminated `href="#"`, expanded per role)
-  - [x] `src/app/page.tsx` (Wired "View All Projects" toggle & smooth scroll, `/guidelines` verified)
-  - [x] `src/app/login/page.tsx` (Added Independent Expert / Research Mentor with mock credentials)
-- [x] Implement Task 3: Unhandled Buttons, Forms, Dropzones, Modals across pages
-  - [x] `src/app/submit/page.tsx` (Interactive dropzone, file chips, tracking ID generation, copy toast, link to `/track`)
-  - [x] `src/app/dashboard/gov/page.tsx` (Interactive metric cards, domain breakdown filters, Export Triage Summary, drill-down table)
-  - [x] `src/app/dashboard/industry/page.tsx` (Filter proposals modal, card arrow links to `/fund/[id]`, commitment query params)
-  - [x] `src/app/dashboard/university/page.tsx` (Search assigned challenges live filtering, View All toggle, dual links)
-  - [x] `src/app/dashboard/university/proposal/[id]/page.tsx` (Save Draft button with feedback toast, document upload selector)
-  - [x] `src/app/challenge/[id]/page.tsx` (Ground Zero photo & video interactive lightbox modal, Share Challenge button with copy toast)
-  - [x] `src/app/dashboard/industry/fund/[id]/page.tsx` (Read `?type=` query param, Escrow Terms & Draft MoU modal with signature preview, Download CSR 80G Receipt)
-- [x] Run grep to verify 0 `href="#"` matches (VERIFIED: 0 matches)
-- [x] Run `npm run build` and resolve any issues (VERIFIED: Exit Code 0, 15 routes compiled)
-- [x] Document in `changes.md` and complete `handoff.md`
-- [x] Send message to orchestrator parent
+## Checklist
+- [x] Read referenced specifications and survey reports.
+- [x] Inspect existing `web/prisma/schema.prisma`, `web/package.json`, `web/src/lib/ai.ts`, `web/src/lib/routing.ts`, `web/src/app/api/challenges/route.ts`, and test files.
+- [x] Install external AI SDKs (`@google/generative-ai`, `openai`) in `web/package.json`.
+- [x] Update Prisma schema for `aiConfidence` and `aiReasoning` on Challenge model. Executed `prisma generate` and `prisma db push`.
+- [x] Implement `web/src/lib/routing.ts` with domain + district routing to empanelled Jharkhand universities.
+- [x] Implement `web/src/lib/ai.ts` with `categorizeProblemWithAI`, semantic deduplication, and resilient fallback heuristics.
+- [x] Implement `web/src/app/api/ai/categorize/route.ts` with Zod validation.
+- [x] Wire AI categorization & routing into `web/src/app/api/challenges/route.ts`.
+- [x] Verify build (`npm run build`) with 0 errors.
+- [x] Verify test suites (`tests/e2e-ai-categorization.test.ts`, `tests/e2e-citizen-intake.test.ts`, `tests/auth-rbac-security.test.ts`, `tests/workflows.test.mjs`, `tests/db-api-lifecycle.test.ts`, `tests/run-all-e2e.ts`) — 100% pass (45/45 master tests passed).
+- [x] Generate worker report and handoff report.
