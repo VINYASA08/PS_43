@@ -21,7 +21,7 @@ Individual test suites may also be executed standalone:
 cmd /c npx tsx tests/e2e-citizen-intake.test.ts
 cmd /c npx tsx tests/e2e-ai-categorization.test.ts
 cmd /c npx tsx tests/e2e-rbac-security.test.ts
-cmd /c npx tsx tests/e2e-workflows.test.ts
+cmd /c npx tsx tests/e2e-workflows.test.ts // in this test one problem involved
 ```
 
 ---

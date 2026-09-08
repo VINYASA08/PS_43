@@ -159,3 +159,36 @@ Ensure the application is production-grade with strict security (OWASP top 10), 
 - [ ] AI Integration Tests: The categorization API successfully communicates with the external AI provider and accurately classifies a sample problem statement.
 - [ ] RBAC & Security: Role-based access control (Gov, University, Industry) is strictly enforced on all API routes, verified by tests that attempt unauthorized access.
 - [ ] End-to-End Build: The codebase compiles and runs with 0 errors, with no console errors or warnings during standard execution flows.
+
+## 2026-09-05T11:04:25Z
+
+# Teamwork Project Prompt — Draft
+
+> Status: Launched
+> Goal: Craft prompt → get user approval → delegate to teamwork_preview
+> Requested team: The full team
+
+Perform a comprehensive A-to-Z audit, refactor, and bug fix across the Next.js Web and Kotlin Mobile applications. Map out the full data flow between components and implement the newly defined 3-Track Problem Triage System into the backend APIs.
+
+Working directory: a:/Development/Antigravity/SIH26043
+Integrity mode: development
+
+## Requirements
+
+### R1. End-to-End System Audit & Data Flow Mapping
+The team must analyze the current state of both the Web and Mobile applications and produce a clear architectural document mapping how data flows between the frontends, API, and database.
+
+### R2. Implement 3-Track Triage System
+The backend APIs and database schema must be updated to enforce the "Track A (Innovation), Track B (Standard), Track C (Civic)" logic for all problem submissions.
+
+### R3. Cross-Platform Bug Fixes & Refactor
+Identify and resolve any build, runtime, or integration errors across the Next.js web platform and Kotlin mobile app to ensure a stable, production-ready baseline.
+
+## Acceptance Criteria
+
+### Verification
+- [ ] Programmatic: A test script is created and run that successfully submits three mock problems (one for each track) and verifies they are routed and categorized correctly in the database.
+- [ ] Programmatic: `npm run build` executes successfully with 0 errors in the `/web` directory.
+- [ ] Programmatic: `cmd.exe /c "set JAVA_HOME=C:\Users\vinod\.jdks\jbr-17.0.14&& gradlew assembleDebug"` executes successfully with 0 errors in the `/mobile` directory.
+- [ ] Objective: A detailed markdown architecture document (`architecture_flow.md`) is created in the workspace outlining the full data flow.
+
