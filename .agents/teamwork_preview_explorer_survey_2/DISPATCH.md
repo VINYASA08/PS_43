@@ -1,21 +1,35 @@
-## 2026-09-04T21:07:36Z
+# Dispatch for Explorer Survey 2 (Backend APIs, AI Match & Race Condition Claim)
 
-You are Explorer Survey 2 (Backend & Security Explorer).
-Your working directory is: a:\Development\Antigravity\SIH26043\.agents\teamwork_preview_explorer_survey_2
-Authoritative request file: a:\Development\Antigravity\SIH26043\.agents\ORIGINAL_REQUEST.md (read all sections, especially ## 2026-09-04T21:04:25Z and ## 2026-09-04T14:06:00Z)
+## Mission
+Investigate Next.js backend API routes, services, handlers, and endpoints related to:
+1. Citizen submission triage, Sarpanch verification routes that must be removed or replaced with District Nodal Officer routing.
+2. Triage actions: Reject (with reason), Divert to Gov Body (PWD, Municipal Corp, etc.), Route to Academia.
+3. AI 3-way university match simulation (logging mock emails to console).
+4. Claim challenge endpoint for universities with atomic race condition locking (first university to claim succeeds, subsequent claims fail/reject).
+5. Existing auth, roles, and test scripts.
 
-Objective:
-Survey the existing codebase at `a:\Development\Antigravity\SIH26043` (especially `web/`) focusing on Backend Architecture, Database models (Prisma schema, migrations, seeds, PostgreSQL setup), Tiered Authentication (Citizen OTP, University .ac.in, Industry approval, Gov TOTP 2FA), RBAC middleware, and Security hardening (OWASP Top 10, CSRF, CSP, security headers, rate limiting, audit logging).
+## Key Files & Requirements
+- Read ORIGINAL_REQUEST.md at `a:/Development/Antigravity/SIH26043/.agents/ORIGINAL_REQUEST.md` (specifically `## 2026-09-08T18:38:41Z`).
+- Explore `web/src/app/api/...` or wherever API routes live.
+- Determine concurrency/atomic update mechanism in Prisma/PostgreSQL or API for claim race condition.
+- Deliver your findings to `a:/Development/Antigravity/SIH26043/.agents/teamwork_preview_explorer_survey_2/handoff.md`.
 
-Scope boundaries:
-Read-only investigation. DO NOT write or edit source code. Store your state/progress in your working directory.
+## 2026-09-08T18:40:00Z
+You are Explorer Survey 2 (Backend APIs, AI Match & Race Condition Claim).
+Your working directory is: a:/Development/Antigravity/SIH26043/.agents/teamwork_preview_explorer_survey_2
+Read your dispatch file at: a:/Development/Antigravity/SIH26043/.agents/teamwork_preview_explorer_survey_2/DISPATCH.md
+Read the authoritative user request at: a:/Development/Antigravity/SIH26043/.agents/ORIGINAL_REQUEST.md (header ## 2026-09-08T18:38:41Z).
 
-Outputs:
-Write a comprehensive report to `a:\Development\Antigravity\SIH26043\.agents\teamwork_preview_explorer_survey_2\survey_report.md` and a self-contained `handoff.md` covering:
-1. Current state of backend APIs (/api/...), database (Prisma schema, tables, relations, seed data).
-2. Current auth system implementation: password hashing, session cookies, JWT/tokens, OTP verification, 2FA, lockout.
-3. RBAC middleware status: role enforcement on API routes, 401/403 handling, audit logs.
-4. Security posture: headers, CSRF, XSS/CSP, input validation (Zod), secret management (.env.example).
-5. Specific list of backend & security features for the Feature Inventory.
+Your goal:
+Investigate Next.js backend API routes, services, handlers, and endpoints related to:
+1. Citizen submissions and triage: where Sarpanch verification is currently handled and what API routes need to be removed or replaced for the District Nodal Officer.
+2. The exact API design for Nodal Officer triage:
+   - Reject (with rejection reason)
+   - Divert to Gov Body (PWD, Municipal Corp, etc.)
+   - Route to Academia (triggers AI 3-way match & mock email console logs)
+3. The AI 3-way university match simulation service and console email logging.
+4. The university "Claim" endpoint and how to guarantee strict atomic race condition locking (e.g., Prisma interactive transaction, atomic conditional update `updateMany` with `{ status: 'routed_to_academia', claimedBy: null }`, or database lock) so that the first university wins and subsequent claims are rejected/locked out.
 
-When done, message parent with a brief summary referencing your report path.
+Write your comprehensive findings and recommendations to:
+a:/Development/Antigravity/SIH26043/.agents/teamwork_preview_explorer_survey_2/handoff.md
+Once done, send a message back to parent with a concise summary and reference to your handoff file.

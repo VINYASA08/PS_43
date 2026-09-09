@@ -44,6 +44,7 @@ kotlin {
                 implementation("cafe.adriel.voyager:voyager-navigator:1.0.0")
                 implementation("cafe.adriel.voyager:voyager-transitions:1.0.0")
                 implementation("cafe.adriel.voyager:voyager-koin:1.0.0")
+                implementation("cafe.adriel.voyager:voyager-tab-navigator:1.0.0")
             }
         }
         val androidMain by getting {

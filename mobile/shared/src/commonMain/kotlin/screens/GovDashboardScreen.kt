@@ -1,12 +1,16 @@
 package screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
 import cafe.adriel.voyager.core.screen.Screen
@@ -55,27 +59,34 @@ class GovDashboardScreen : Screen {
 
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = { Text("Government Oversight Dashboard") },
-                    navigationIcon = {
-                        Button(onClick = { navigator?.pop() }) { Text("Back") }
-                    },
-                    backgroundColor = MaterialTheme.colors.surface
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Brush.horizontalGradient(listOf(Color(0xFF0D9488), Color(0xFF065F46))))
+                ) {
+                    TopAppBar(
+                        title = { Text("Government Oversight Dashboard", color = Color.White) },
+                        navigationIcon = {
+                            TextButton(onClick = { navigator?.pop() }) { Text("Back", color = Color.White) }
+                        },
+                        backgroundColor = Color.Transparent,
+                        elevation = 0.dp
+                    )
+                }
             }
         ) { paddingValues ->
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = MaterialTheme.colors.primary)
                 }
             } else if (errorMsg != null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(errorMsg!!, color = Color.Red)
+                    Text(errorMsg!!, color = MaterialTheme.colors.error)
                 }
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)) {
                     item {
-                        Text("State Administrative Console", style = MaterialTheme.typography.h6)
+                        Text("State Administrative Console", style = MaterialTheme.typography.h6, color = MaterialTheme.colors.primary)
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                     
@@ -91,11 +102,11 @@ class GovDashboardScreen : Screen {
                     }
 
                     item {
-                        Text("Pending Corporate Approvals", style = MaterialTheme.typography.subtitle1)
+                        Text("Pending Corporate Approvals", style = MaterialTheme.typography.subtitle1, color = MaterialTheme.colors.secondary)
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                     items(pendingUsers) { user ->
-                        Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), elevation = 4.dp) {
+                        GlassCard {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(user.name, style = MaterialTheme.typography.subtitle2)
                                 Text("${user.organization ?: "Unknown"} • ${user.email}", style = MaterialTheme.typography.body2)
@@ -105,11 +116,11 @@ class GovDashboardScreen : Screen {
                     item { Spacer(modifier = Modifier.height(16.dp)) }
 
                     item {
-                        Text("Recent Audit Trail", style = MaterialTheme.typography.subtitle1)
+                        Text("Recent Audit Trail", style = MaterialTheme.typography.subtitle1, color = MaterialTheme.colors.secondary)
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                     items(auditLogs.take(5)) { log ->
-                        Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), elevation = 4.dp) {
+                        GlassCard {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(log.action, style = MaterialTheme.typography.subtitle2)
                                 Text("${log.resource} by ${log.user?.name ?: "System"} at ${log.createdAt}", style = MaterialTheme.typography.caption)
@@ -119,15 +130,15 @@ class GovDashboardScreen : Screen {
                     item { Spacer(modifier = Modifier.height(16.dp)) }
 
                     item {
-                        Text("State Challenge Ledger", style = MaterialTheme.typography.subtitle1)
+                        Text("State Challenge Ledger", style = MaterialTheme.typography.subtitle1, color = MaterialTheme.colors.secondary)
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                     items(challenges) { challenge ->
-                        Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), elevation = 4.dp) {
+                        GlassCard {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                                     Text(challenge.title, style = MaterialTheme.typography.subtitle2, modifier = Modifier.weight(1f))
-                                    Text(challenge.status, style = MaterialTheme.typography.caption, color = Color.Blue)
+                                    Text(challenge.status, style = MaterialTheme.typography.caption, color = MaterialTheme.colors.primary)
                                 }
                                 Text("${challenge.domain} • ${challenge.urgency} • ${challenge.district}", style = MaterialTheme.typography.body2)
                             }
@@ -139,11 +150,32 @@ class GovDashboardScreen : Screen {
     }
 
     @Composable
+    fun GlassCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+        Card(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
+                .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(16.dp)),
+            shape = RoundedCornerShape(16.dp),
+            backgroundColor = MaterialTheme.colors.surface.copy(alpha = 0.7f),
+            elevation = 0.dp
+        ) {
+            content()
+        }
+    }
+
+    @Composable
     fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
-        Card(modifier = modifier, elevation = 4.dp) {
+        Card(
+            modifier = modifier
+                .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp)),
+            shape = RoundedCornerShape(12.dp),
+            backgroundColor = MaterialTheme.colors.surface.copy(alpha = 0.7f),
+            elevation = 0.dp
+        ) {
             Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(label, style = MaterialTheme.typography.caption)
-                Text(value, style = MaterialTheme.typography.h6)
+                Text(value, style = MaterialTheme.typography.h6, color = MaterialTheme.colors.primary)
             }
         }
     }

@@ -192,3 +192,192 @@ Identify and resolve any build, runtime, or integration errors across the Next.j
 - [ ] Programmatic: `cmd.exe /c "set JAVA_HOME=C:\Users\vinod\.jdks\jbr-17.0.14&& gradlew assembleDebug"` executes successfully with 0 errors in the `/mobile` directory.
 - [ ] Objective: A detailed markdown architecture document (`architecture_flow.md`) is created in the workspace outlining the full data flow.
 
+## 2026-09-08T13:53:26Z
+
+# Teamwork Project Prompt — Draft
+
+> Status: Launched
+> Goal: Craft prompt → get user approval → delegate to teamwork_preview
+> Requested team: Full standard team
+
+Develop a Kotlin Multiplatform mobile application dedicated exclusively to problem submission for the Societal Innovation Collaboration Portal. The app should allow any user to submit local challenges with simulated multimedia and location data, sending the payload to the Next.js backend API.
+
+Working directory: a:/Development/Antigravity/SIH26043/mobile
+Integrity mode: development
+
+## Requirements
+
+### R1. Problem Submission Interface
+Implement a Compose Multiplatform UI allowing users to input a problem title, description, district, and domain. The UI must include buttons to "attach" photos/videos and "get current location", which will inject simulated mock data into the payload.
+
+### R2. Backend API Integration
+Integrate Ktor to perform a `POST /api/mobile/challenges` request to the Next.js backend running at `http://10.0.2.2:3000`. The app must handle success and error states appropriately and provide feedback to the user.
+
+## Acceptance Criteria
+
+### Submission Verification
+- [ ] An agent acting as a judge must be able to launch the app, navigate to the submission screen, fill out the form, and successfully submit a problem.
+- [ ] The agent judge must verify via the Next.js backend (or database) that the submitted problem was accurately received and stored with the simulated location and media data.
+
+## 2026-09-08T18:38:41Z
+
+# Teamwork Project Prompt — Draft
+
+> Status: Launched
+> Goal: Craft prompt → get user approval → delegate to teamwork_preview
+> Requested team: Full standard team
+
+Implement a complete architectural pivot to replace the Sarpanch role with a District Nodal Officer routing system on the Next.js Web backend. The Nodal Officer Web Dashboard must be able to cancel issues, divert them to specific government bodies (e.g., PWD), or push them to the AI for 3-way university matching where the first university to claim the problem gets it. Use simulated mock services for AI matching and email sending.
+
+Working directory: a:/Development/Antigravity/SIH26043
+Integrity mode: demo
+
+## Requirements
+
+### R1. Database & Schema Updates
+Update the Prisma schema to remove Sarpanch verification data. Add fields necessary to support Nodal Officer triage (states: pending, rejected, diverted_to_gov, routed_to_academia). 
+
+### R2. Web Nodal Dashboard
+Implement a Next.js UI allowing the Nodal Officer to view pending citizen submissions. Provide action buttons to:
+1. Reject (requires reason input).
+2. Divert to Gov Body (select from a list like PWD, Municipal Corp).
+3. Route to Academia.
+
+### R3. AI Match & Claim Workflow
+When routed to Academia, the backend must simulate matching 3 universities (logging mock emails to console). Provide a basic Next.js API or UI for those universities to "Claim" the challenge. The system must enforce a race condition: the first university to claim the challenge successfully locks it, preventing the other two from claiming it.
+
+## Acceptance Criteria
+
+### Workflow Verification
+- [ ] An automated test script (or agent judge) must simulate a Nodal Officer routing a problem to Academia.
+- [ ] The test must simulate University A calling the claim endpoint and assert a successful claim.
+- [ ] The test must immediately simulate University B calling the claim endpoint for the same problem and assert that it is rejected/locked out.
+- [ ] The Next.js web application must build successfully (`npm run build`) with zero type errors.
+
+## 2026-09-09T04:59:23Z
+
+# Teamwork Project Prompt — Draft
+
+> Status: Launched
+> Goal: Craft prompt → get user approval → delegate to teamwork_preview
+> Requested team: Full standard team
+
+Perform a comprehensive QA diagnostic and repair operation across both the Web (Next.js) and Mobile (Kotlin Multiplatform) applications to reach 100% implementation. The team must proactively identify and fix broken routing flows, dead UI buttons, and missing placeholder pages across the entire platform.
+
+Working directory: a:/Development/Antigravity/SIH26043
+Integrity mode: development
+
+## Requirements
+
+### R1. Flow & Routing Repair
+Audit all user flows across all roles (Citizen, Nodal, University, Industry). Ensure every dashboard link, navigation card, and list item successfully routes to an existing, implemented detail page. If a page does not exist, build it.
+
+### R2. UI Completion (Dead Buttons)
+Find all "dead" buttons (buttons with empty `onClick` handlers, empty hrefs, or placeholders) and wire them up to real API endpoints, navigation, or functional state changes.
+
+### R3. Missing Page Implementation
+Identify missing placeholder pages (e.g., Settings, Guidelines, User Profiles, Auth fallbacks) and build them out completely so there are no "Coming Soon" or empty screens in the critical path on Web or Mobile.
+
+## Acceptance Criteria
+
+### Workflow Verification
+- [ ] The team must write and execute an automated programmatic script that requests every major route/page in the Web app (crawling the Next.js routes) and asserts that all return HTTP 200 without throwing hydration or server errors.
+- [ ] The Web application must build successfully (`npm run build`).
+- [ ] The Mobile application must build successfully (`cmd.exe /c "set JAVA_HOME=C:\Users\vinod\.jdks\jbr-17.0.14&& gradlew.bat desktopApp:assemble"`) verifying that no Kotlin files reference missing UI components or broken navigation graphs.
+
+## 2026-09-09T09:48:37Z
+
+# Teamwork Project Prompt — Draft
+
+> Status: Ready for launch — awaiting user approval.
+> Goal: Craft prompt → get user approval → delegate to teamwork_preview
+> Requested team: [none — teamwork routes from the description]
+
+Implement an account handover portal within the settings page. This feature allows users leaving their position to transfer their account (including all history, data, and reports) to a new successor, ensuring continuity of work.
+
+Working directory: a:/Development/Antigravity/SIH26043
+Integrity mode: development
+
+## Requirements
+
+### R1. Settings UI Integration
+Add an "Account Handover" section to the `/dashboard/settings` page. The user must be able to input their successor's email address to initiate the transfer process.
+
+### R2. Handover API & Token Generation
+Implement backend logic to securely generate a handover token linked to the current user's account and the successor's email. A simulated email containing the invite link should be logged to the console.
+
+### R3. Successor Claim Flow
+Create a public route (e.g., `/handover/[token]`) where the successor can accept the invite, provide their name, and set their new password. This must securely overwrite the account's existing credentials while preserving the underlying user ID, history, and roles.
+
+## Acceptance Criteria
+
+### Workflow Verification
+- [ ] Programmatic Tests: An automated script must simulate the full handover flow (generating a token as User A, and redeeming it as User B) and assert that User B can subsequently login to User A's account.
+- [ ] UI Completeness: The settings page and the claim page must render without hydration errors.
+- [ ] End-to-End Build: The web codebase compiles and runs with 0 errors (`npm run build`).
+
+## 2026-09-09T14:19:46Z
+
+# Teamwork Project Prompt — Draft
+
+> Status: Ready for launch — awaiting user approval.
+> Goal: Craft prompt → get user approval → delegate to teamwork_preview
+> Requested team: [none — teamwork routes from the description]
+
+Review and audit the newly implemented Government Dashboard (`web/src/app/dashboard/gov/page.tsx`) and Industry Mentor Dashboard (`web/src/app/dashboard/industry/page.tsx`). Compare the implemented UI against the detailed specifications extracted from the provided `government page.pdf` and `mentor page.pdf` to identify missing features, visual misalignments, or structural defects, and actively implement the code to fix any identified issues.
+
+Working directory: a:/Development/Antigravity/SIH26043
+Integrity mode: development
+
+## Requirements
+
+### R1. Government Dashboard Audit & Fix
+Audit `gov/page.tsx` against the features listed in `government page.pdf` (Statewide Telemetry, Interactive GIS Map UI placeholders with hover tooltips, IP Compliance Queue, and Navigation Tabs). Implement missing UI components and remove generic placeholders.
+
+### R2. Mentor Dashboard Audit & Fix
+Audit `industry/page.tsx` against the features listed in `mentor page.pdf` (Home KPIs, Escrow Ledger, Lab Teams Directory, Kanban Task Board, TRL Audit Log, and the Interactive Mentor Review Screen with Dual Decision Gates and IP Royalty sliders). Implement missing UI components and remove generic placeholders.
+
+## Acceptance Criteria
+
+### Audit Verification
+- [ ] Feature Completeness: An automated or manual inspection confirms that there are no "Module in development" placeholders remaining for any of the core features described in the PDFs (e.g., Royalty Sliders, Dual Decision Gates, Hover Tooltips).
+- [ ] UI Build Validation: The Next.js web codebase compiles and runs with 0 errors (`npm run build`) after the UI additions are made.
+
+## 2026-09-09T17:21:50Z
+
+Update all markdown documentation files in the Jharkhand Societal Innovation Collaboration Portal (branded "PRAGATI") to accurately reflect the current state of the codebase, which now has 44+ compiled routes, 24 Jharkhand districts, and features built across 9 development rounds.
+
+Working directory: a:/Development/Antigravity/SIH26043
+Integrity mode: development
+
+## Requirements
+
+### R1. Master Project Documentation Update
+Update the following 6 project markdown files to accurately describe the current codebase architecture, features, routes, and capabilities. Remove all references to the deprecated Sarpanch role (per `.agy/rules/nodal-routing-architecture.md`). Use the correct branding "PRAGATI" (Partnerships of Research & Academia for Grassroots Advancement and Technological Innovation) and "Jan-Aawaz" for the citizen mobile app.
+
+Files to update:
+1. `PROJECT.md` — Rewrite as a comprehensive Master Project Specification covering ALL modules (not just Account Handover). Include: Tri-Track Triage, Citizen Intake, AI Categorization, Nodal Officer Triage, University DPR & Proposals, Industry AI Matching & Escrow, Government GIS Dashboard, Industry Mentor Portal (Kanban/TRL/Escrow), Chat Hub, Open Contributor Board, WhatsApp Simulator, Account Handover Portal, Mobile App, and the complete 44+ route inventory.
+2. `TEST_INFRA.md` — Update the feature coverage inventory and test file listing to reflect all 32+ test files across Rounds 1-9. Keep the existing 4-tier testing philosophy but expand the feature table beyond F19.
+3. `TEST_READY.md` — Update to reflect the current 44+ route count and all test suites, not just the Round 5 mobile tests.
+4. `architecture_flow.md` — Update to version 9.0.0. Remove all Sarpanch references. Add missing architectural components: Account Handover flow, Nodal Officer workflow, Government GIS Dashboard, Industry Mentor Portal (Kanban/TRL/Escrow), Chat Hub, Open Contributor Board, and the complete API route topology.
+5. `mobile/README.md` — Rename from "Smart Study" to "Jan-Aawaz / PRAGATI Lens". Remove Sarpanch persona references. Document actual screens present in the Kotlin codebase.
+6. `web/README.md` — Rename from "Smart Study" to "PRAGATI". Add the complete route inventory (44+ routes), all 6 dashboard personas (Citizen, Nodal, Gov, University, Industry, Contributor), and all major features.
+
+### R2. Agent Context Files Update
+Update `web/CLAUDE.md` to contain useful project context, build commands, test commands, and architectural overview instead of the current 2-line stub. Leave `web/AGENTS.md` as-is since it is auto-generated by Next.js.
+
+### R3. Rules Files Reconciliation
+Update `.agy/rules/collaboration-architecture.md` to mention the Industry Mentor TRL tracking linkage. Delete or archive `.agy/learning_proposal.md` since it proposes a Sarpanch-based rule that contradicts the active `nodal-routing-architecture.md` rule.
+
+## Acceptance Criteria
+
+### Documentation Accuracy
+- [ ] No markdown file contains the string "Smart Study" (replaced with PRAGATI/Jan-Aawaz).
+- [ ] No markdown file contains the string "Sarpanch" (deprecated per nodal-routing-architecture.md rule).
+- [ ] `PROJECT.md` lists at least 40 API routes and all 6 dashboard types.
+- [ ] `TEST_INFRA.md` lists at least 25 test files in the file structure section.
+- [ ] `architecture_flow.md` version is updated to 9.0.0 and includes Account Handover, GIS, TRL/Kanban sections.
+- [ ] `web/CLAUDE.md` contains at least 30 lines of useful project context (build commands, test commands, architecture overview).
+
+### Build Verification
+- [ ] `npm run build` in `web/` exits with code 0 after all changes (documentation changes should not break the build, but verify).

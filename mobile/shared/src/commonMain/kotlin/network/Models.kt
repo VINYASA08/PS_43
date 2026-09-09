@@ -3,6 +3,33 @@ package network
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class MobileChallengeSubmission(
+    val title: String,
+    val description: String,
+    val district: String,
+    val location: String,
+    val domain: String? = null,
+    val evidenceUrl: String? = null,
+    val reporterId: String? = null,
+    val urgency: String? = "MEDIUM",
+    val track: String? = null
+)
+
+@Serializable
+data class MobileSubmissionResponse(
+    val success: Boolean = false,
+    val trackingId: String? = null,
+    val challengeId: String? = null,
+    val track: String? = null,
+    val trackRouting: String? = null,
+    val status: String? = null,
+    val error: String? = null
+)
+
+typealias MobileSubmitRequest = MobileChallengeSubmission
+typealias MobileSubmitResponse = MobileSubmissionResponse
+
+@Serializable
 data class AnalyticsSummary(
     val totalSubmissions: Int = 0,
     val problemsResolved: Int = 0,
@@ -29,6 +56,7 @@ data class Challenge(
     val title: String = "",
     val domain: String = "",
     val district: String = "",
+    val location: String? = null,
     val urgency: String = "",
     val status: String = "",
     val track: String = "TRACK_A_INNOVATION",
@@ -122,3 +150,84 @@ data class FundsResponse(
     val commitments: List<Fund>? = null,
     val funds: List<Fund>? = null
 )
+
+@Serializable
+data class VerifyChallengeRequest(
+    val challengeId: String,
+    val nodalOfficerId: String? = null,
+    val sarpanchId: String? = null
+)
+
+@Serializable
+data class VerifyChallengeResponse(
+    val success: Boolean = false,
+    val verified: Boolean? = null,
+    val challengeId: String? = null,
+    val trackingId: String? = null,
+    val track: String? = null,
+    val trackRouting: String? = null,
+    val status: String? = null,
+    val verifiedAt: String? = null,
+    val message: String? = null,
+    val duplicateOfTrackingId: String? = null,
+    val error: String? = null
+)
+
+@Serializable
+data class TelemetryItem(
+    val label: String = "",
+    val value: String = "",
+    val status: String = ""
+)
+
+@Serializable
+data class TimelineStep(
+    val step: Int = 1,
+    val title: String = "",
+    val subtitle: String = "",
+    val status: String = "pending",
+    val date: String = "",
+    val details: String = "",
+    val badge: String? = null,
+    val badgeColor: String? = null
+)
+
+@Serializable
+data class TrackAuditLog(
+    val timestamp: String = "",
+    val entity: String = "",
+    val action: String = "",
+    val note: String = ""
+)
+
+@Serializable
+data class TrackIssueDetail(
+    val id: String = "",
+    val challengeId: String = "",
+    val title: String = "",
+    val domain: String = "",
+    val track: String = "TRACK_A_INNOVATION",
+    val trackRouting: String? = null,
+    val triageReasoning: String? = null,
+    val triageConfidence: Double? = null,
+    val targetEntityLevel: String? = null,
+    val location: String = "",
+    val submittedAt: String = "",
+    val urgency: String = "",
+    val assignedInstitute: String? = null,
+    val industryPartner: String? = null,
+    val fundingEscrow: String? = null,
+    val statusText: String = "",
+    val slaStatus: String = "",
+    val telemetry: List<TelemetryItem> = emptyList(),
+    val timeline: List<TimelineStep> = emptyList(),
+    val logs: List<TrackAuditLog> = emptyList()
+)
+
+@Serializable
+data class TrackDetailResponse(
+    val success: Boolean = false,
+    val issue: TrackIssueDetail? = null,
+    val error: String? = null
+)
+

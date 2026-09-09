@@ -1,20 +1,13 @@
-## 2026-09-04T21:07:36Z
+# Dispatch for Explorer Survey 1 (Database & Schema)
 
-You are Explorer Survey 1 (Codebase & UI Architecture Explorer).
-Your working directory is: a:\Development\Antigravity\SIH26043\.agents\teamwork_preview_explorer_survey_1
-Authoritative request file: a:\Development\Antigravity\SIH26043\.agents\ORIGINAL_REQUEST.md (read all sections, especially ## 2026-09-04T21:04:25Z and ## 2026-09-04T14:06:00Z)
+## 2026-09-08T18:40:00Z
+Investigate the database, Prisma schema, migrations, seed scripts, and codebase references to Sarpanch.
+Detail:
+1. All tables, enums, fields relating to Sarpanch, citizen submissions, challenges, and universities.
+2. The exact Prisma schema changes needed to remove Sarpanch verification data and add District Nodal Officer triage fields (states: pending, rejected, diverted_to_gov, routed_to_academia, rejection reason, diverted target, matched universities, claimedBy university, claimedAt, etc.).
+3. How migrations/db push and seed scripts currently work.
+4. Any potential breaking changes or foreign keys.
 
-Objective:
-Survey the entire existing codebase at `a:\Development\Antigravity\SIH26043` (especially `web/`) focusing on UI Architecture, citizen challenge submission flow (`/submit`, multimedia evidence handling, geo-location inputs), dashboards (`/dashboard/gov`, `/dashboard/university`, `/dashboard/industry`, `/dashboard/settings`, `/track`, `/guidelines`), and user interface components. Map all existing UI pages, interactive components, forms, and client states.
-
-Scope boundaries:
-Read-only investigation. DO NOT write or edit source code. Store your state/progress in your working directory.
-
-Outputs:
-Write a comprehensive report to `a:\Development\Antigravity\SIH26043\.agents\teamwork_preview_explorer_survey_1\survey_report.md` and a self-contained `handoff.md` covering:
-1. Detailed enumeration of all existing frontend routes, components, and state management.
-2. Citizen engagement features: current `/submit` flow, multimedia handling (photos/videos/attachments), geo-location capture (GPS/map/district selection).
-3. UI gaps compared to requirements in ORIGINAL_REQUEST.md.
-4. Specific list of frontend features for the Feature Inventory.
-
-When done, message parent with a brief summary referencing your report path.
+Write your comprehensive findings and recommendations to:
+a:/Development/Antigravity/SIH26043/.agents/teamwork_preview_explorer_survey_1/handoff.md
+Once done, send a message back to parent with a concise summary and reference to your handoff file.

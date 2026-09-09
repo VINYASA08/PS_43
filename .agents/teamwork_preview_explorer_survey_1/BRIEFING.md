@@ -1,7 +1,7 @@
-# BRIEFING — 2026-09-05T02:44:00Z
+# BRIEFING — 2026-09-08T18:45:00Z
 
 ## Mission
-Survey the entire frontend codebase at `web/` focusing on UI Architecture, citizen submission flow, dashboards, and UI components to produce a comprehensive survey report and handoff.
+Investigate database, Prisma schema, migrations, seed scripts, and codebase references to Sarpanch to plan the architectural pivot to District Nodal Officer triage and AI 3-way university claiming.
 
 ## 🔒 My Identity
 - Archetype: explorer
@@ -16,26 +16,25 @@ Survey the entire frontend codebase at `web/` focusing on UI Architecture, citiz
 - Do not edit or modify source code
 
 ## Current Parent
-- Conversation ID: 57ec4971-0a0c-4092-8219-d36d4b938529
-- Updated: 2026-09-05T02:44:00Z
+- Conversation ID: 3b7b4dfb-a1e0-44bb-86b7-a6d4ad16dbe9
+- Updated: 2026-09-08T18:45:00Z
 
 ## Investigation State
-- **Explored paths**: `web/package.json`, `web/next.config.ts`, `web/prisma/schema.prisma`, all 16 `web/src/app/**/page.tsx` routes, `app/layout.tsx`, `app/dashboard/layout.tsx`, `components/RoleGuard.tsx`, `components/ui/*`, `stores/authStore.ts`, `lib/api-client.ts`, `lib/validation.ts`, `app/api/challenges/route.ts`, `app/api/track/[id]/route.ts`, `tests/workflows.test.mjs`, `tests/routes.test.mjs`.
-- **Key findings**: 
-  1. `next.config.ts` line 45 blocks camera, microphone, and geolocation APIs via `Permissions-Policy`.
-  2. Citizen challenge submission (`/submit`) uses mock file paths `/evidence/${name}` without uploading files to server/storage.
-  3. No AI provider SDKs (`@google/genai` or `openai`) are installed in `package.json`.
-  4. Geolocation inputs are plain text without GPS extraction or Jharkhand's 24-district dropdown.
-  5. UI has 16 operational routes with high polish, responsive layouts, and multi-persona state management.
-- **Unexplored areas**: None for UI architecture survey scope.
+- **Explored paths**: `web/prisma/schema.prisma`, `web/prisma/seed.ts`, `web/package.json`, `web/.env`, `web/src/lib/prisma.ts`, `web/src/lib/types.ts`, `web/src/lib/constants.ts`, `web/src/lib/routing.ts`, `web/src/lib/ai.ts`, `web/src/lib/validation.ts`, `web/src/app/api/challenges/route.ts`, `web/src/app/api/challenges/[id]/route.ts`, `web/src/app/api/mobile/verify/route.ts`, `web/src/app/api/mobile/challenges/route.ts`, `web/src/app/dashboard/gov/page.tsx`, `web/tests/mobile-pipeline.mjs`.
+- **Key findings**:
+  1. `localVerified` on `Challenge` (line 84 of `schema.prisma`) is the sole Sarpanch field in the database.
+  2. The only backend code referencing Sarpanch/`localVerified` is `web/src/app/api/mobile/verify/route.ts`. No frontend UI page depends on `localVerified`.
+  3. The project runs SQLite (`provider = "sqlite"`) at `dev.db`, using `npx prisma db push` without formal migration directories. Array fields must remain JSON strings (`String?`) due to SQLite constraints.
+  4. Defined exact schema additions for District Nodal Officer triage: `nodalStatus` (default `"pending"`), `rejectionReason`, `divertedTarget`, `divertedAt`, `matchedUniversities`, `claimedById`, `claimedBy`, `claimedInstitute`, `claimedAt`, `nodalOfficerId`, `nodalOfficer`, `nodalReviewedAt`.
+  5. Concurrency & race condition locking is guaranteed via atomic conditional `updateMany({ where: { id, nodalStatus: "routed_to_academia", claimedAt: null } })` returning HTTP 409 on lockout.
+- **Unexplored areas**: None. Full database and schema investigation completed.
 
 ## Key Decisions Made
-- Authored comprehensive `survey_report.md` covering all 16 routes, citizen submission deep dive, dashboards, gap analysis, and feature inventory.
-- Formulated self-contained 5-component `handoff.md`.
+- Authored comprehensive 291-line `handoff.md` with complete 5-component analysis, schema diffs, seed enhancement strategy, and verification steps.
+- Retained `status` for macro lifecycle while introducing `nodalStatus` for granular triage states (`pending`, `rejected`, `diverted_to_gov`, `routed_to_academia`).
 
 ## Artifact Index
 - `DISPATCH.md` — Incoming dispatch instructions
 - `BRIEFING.md` — Persistent working memory
 - `progress.md` — Liveness heartbeat and progress tracker
-- `survey_report.md` — Detailed UI Architecture & Codebase Survey Report
-- `handoff.md` — 5-Component Handoff Protocol Report
+- `handoff.md` — 5-Component Handoff Protocol Report (Complete)
