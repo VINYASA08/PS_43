@@ -1,0 +1,17 @@
+{
+  "name": "PRAGATI / JSICP — Societal Innovation Collaboration Portal",
+  "short_name": "JSICP PRAGATI",
+  "description": "Government of Jharkhand platform crowdsourcing societal challenges and facilitating collaborative academic and industry innovation.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#613AF5",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

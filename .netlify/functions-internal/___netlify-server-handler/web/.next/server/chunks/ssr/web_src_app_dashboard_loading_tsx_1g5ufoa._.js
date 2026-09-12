@@ -1,0 +1,3 @@
+module.exports=[32060,a=>{"use strict";var b=a.i(80516),c=a.i(17343);a.s(["default",0,function(){return(0,b.jsx)("div",{className:"w-full h-full min-h-[60vh] flex items-center justify-center",children:(0,b.jsxs)("div",{className:"flex flex-col items-center gap-3",children:[(0,b.jsx)(c.Loader2,{className:"w-8 h-8 text-blue-600 animate-spin"}),(0,b.jsx)("p",{className:"text-slate-500 font-medium text-sm animate-pulse",children:"Loading dashboard..."})]})})}])},66494,function(a){a.n(a.i(32060))}];
+
+//# sourceMappingURL=web_src_app_dashboard_loading_tsx_1g5ufoa._.js.map

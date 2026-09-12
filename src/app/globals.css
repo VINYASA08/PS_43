@@ -1,0 +1,247 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-light: var(--primary-light);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+  --color-accent-light: var(--accent-light);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+
+  /* MyGov Official Brand Tokens */
+  --color-mygov-blue: #13528A;
+  --color-mygov-blue-dark: #0E3D66;
+  --color-mygov-blue-light: #1D6FB8;
+  --color-mygov-orange: #F47B20;
+  --color-mygov-orange-dark: #D96711;
+  --color-mygov-orange-light: #F69449;
+  --color-mygov-bg: #F5F7FA;
+  --color-mygov-white: #FFFFFF;
+
+  /* Official Indian Tricolor Tokens */
+  --color-tricolor-saffron: #FF9933;
+  --color-tricolor-white: #FFFFFF;
+  --color-tricolor-green: #138808;
+  
+  /* Highly-Legible System Typography */
+  --font-sans: Arial, Roboto, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", sans-serif;
+  --font-button: Arial, Roboto, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+:root {
+  /* MyGov Official Color Palette */
+  --color-primary: #13528A;
+  --color-primary-dark: #0E3D66;
+  --color-primary-light: #1D6FB8;
+  --color-secondary: #0055A4;
+
+  /* MyGov Accent Palette */
+  --color-accent: #F47B20;
+  --color-accent-dark: #D96711;
+  --color-accent-light: #F69449;
+
+  /* Semantic Feedback Palette */
+  --color-success: #10B981;
+  --color-danger: #EF4444;
+  --color-warning: #F59E0B;
+  --color-info: #13528A;
+
+  /* Highly-Legible System Typography Variables */
+  --font-primary: Arial, Roboto, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", sans-serif;
+  --font-button: Arial, Roboto, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* 8-Point Spacing Grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 40px;
+
+  /* MyGov Moderate Border Radii (No rounded-2xl / rounded-3xl) */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* WCAG 2.1 AA 4px Focus Halo (Primary Blue) */
+  --focus-ring: 0 0 0 4px rgba(19, 82, 138, 0.3);
+
+  /* Preserved Theme Mappings */
+  --background: #F5F7FA;
+  --foreground: #1E293B;
+  
+  --primary: var(--color-primary);
+  --primary-dark: var(--color-primary-dark);
+  --primary-light: var(--color-primary-light);
+  --primary-foreground: #FFFFFF;
+  
+  --secondary: #F1F5F9;
+  --secondary-foreground: #1E293B;
+  
+  --accent: var(--color-accent);
+  --accent-dark: var(--color-accent-dark);
+  --accent-light: var(--color-accent-light);
+  --accent-foreground: #040D1F;
+  
+  --card: #FFFFFF;
+  --card-foreground: #1E293B;
+  
+  --border: #E2E8F0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: #1D6FB8;
+    --color-primary-dark: #13528A;
+    --color-primary-light: #4B9FE1;
+    --color-secondary: #0055A4;
+    --color-accent: #F47B20;
+    --color-accent-dark: #D96711;
+    --color-accent-light: #F69449;
+
+    --color-success: #10B981;
+    --color-danger: #EF4444;
+    --color-warning: #F59E0B;
+    --color-info: #38BDF8;
+
+    --font-primary: Arial, Roboto, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", sans-serif;
+    --font-button: Arial, Roboto, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 16px;
+    --space-4: 24px;
+    --space-5: 32px;
+    --space-6: 40px;
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --focus-ring: 0 0 0 4px rgba(29, 111, 184, 0.4);
+
+    --background: #020817;
+    --foreground: #F8FAFC;
+    
+    --primary: var(--color-primary);
+    --primary-dark: var(--color-primary-dark);
+    --primary-light: var(--color-primary-light);
+    --primary-foreground: #FFFFFF;
+    
+    --secondary: #1E293B;
+    --secondary-foreground: #F8FAFC;
+    
+    --accent: #F47B20;
+    --accent-dark: #D96711;
+    --accent-light: #F69449;
+    --accent-foreground: #040D1F;
+    
+    --card: #0F172A;
+    --card-foreground: #F8FAFC;
+    
+    --border: #1E293B;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Accessible focus ring for keyboard navigation */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Neutralized Solid Card Utilities (Replacing Glassmorphism) */
+.glass {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.glass-dark {
+  background: #0F172A;
+  border: 1px solid #1E293B;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* High Contrast Mode */
+.high-contrast,
+body.high-contrast {
+  --background: #000000 !important;
+  --foreground: #ffffff !important;
+  --card: #000000 !important;
+  --card-foreground: #ffffff !important;
+  --border: #ffffff !important;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast *,
+body.high-contrast * {
+  border-color: #ffffff !important;
+}
+
+.high-contrast a,
+body.high-contrast a {
+  color: #FFD700 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 4px !important;
+}
+
+.high-contrast button,
+.high-contrast input[type="submit"],
+.high-contrast .btn-primary,
+body.high-contrast button {
+  background-color: #FFD700 !important;
+  color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.high-contrast input,
+.high-contrast select,
+.high-contrast textarea,
+body.high-contrast input,
+body.high-contrast select,
+body.high-contrast textarea {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+.high-contrast :focus-visible,
+body.high-contrast :focus-visible {
+  outline: 3px solid #FFD700 !important;
+  outline-offset: 2px !important;
+  box-shadow: none !important;
+}
+
+/* Accessible Font Scale Rules */
+html[data-fontscale="small"],
+html.font-scale-sm {
+  font-size: 90%;
+}
+
+html[data-fontscale="normal"],
+html.font-scale-md {
+  font-size: 100%;
+}
+
+html[data-fontscale="large"],
+html.font-scale-lg {
+  font-size: 115%;
+}
+
