@@ -1,0 +1,32 @@
+--- a/web/src/app/api/mobile/verify/route.ts
++++ b/web/src/app/api/mobile/verify/route.ts
+@@ -7,3 +7,3 @@ export async function POST(req: NextRequest) {
+   try {
+-    const { challengeId, sarpanchId } = await req.json();
++    const { challengeId, sarpanchId, nodalOfficerId } = await req.json();
+ 
+-    const officerId = sarpanchId || nodalOfficerId;
++    const officerId = nodalOfficerId || sarpanchId;
+ 
+@@ -15,3 +15,3 @@ export async function POST(req: NextRequest) {
+     // Verify official (supports legacy test-sarpanch-id or valid GOV user)
+     let officer = null;
+-    if (officerId === "test-sarpanch-id") {
++    if (officerId === "test-sarpanch-id" || officerId === "test-nodal-id") {
+       officer = await prisma.user.findFirst({ where: { role: "GOV" } });
+@@ -33,3 +33,3 @@ export async function POST(req: NextRequest) {
+     // 1. Mark as verified by government official (Sarpanch role replaced by District Nodal Officer)
+-    // (Sarpanch role replaced by District Nodal Officer)
++    // 1. Mark as verified by District Nodal Officer
+     await prisma.challenge.update({
+@@ -45,1 +45,1 @@ export async function POST(req: NextRequest) {
+-      evidenceNotes: "Verified physically by Sarpanch.",
++      evidenceNotes: "Verified by District Nodal Officer.",
+@@ -98,2 +98,3 @@ export async function POST(req: NextRequest) {
+         resourceId: challengeId,
++        challengeId: challengeId,
+         userId: officer.id,
+@@ -101,2 +102,3 @@ export async function POST(req: NextRequest) {
+           domain: updated.domain,
++          verifiedBy: "District Nodal Officer",
+           track: updated.track,

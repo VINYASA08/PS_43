@@ -1,0 +1,213 @@
+--- a/web/src/app/api/handover/[token]/claim/route.ts
++++ b/web/src/app/api/handover/[token]/claim/route.ts
+@@ -6,2 +6,4 @@
+ /**
+  * Shared implementation for claiming a handover token.
++ * Uses atomic conditional locking (test-and-set via updateMany) to guarantee mutual exclusion
++ * under high-concurrency conditions in SQLite without interactive transaction lock contention.
+  */
+@@ -47,87 +49,85 @@
+-    // Hash password with bcrypt cost factor 12 before transaction
++    // Hash password with bcrypt cost factor 12 before DB operations
+     const newPasswordHash = await hashPassword(password);
+ 
+-    // Execute atomic transaction to update User, HandoverToken, and AuditLog
+-    const updatedUser = await prisma.$transaction(async (tx) => {
+-      const handoverToken = await tx.handoverToken.findUnique({
+-        where: { token },
+-        include: { user: true },
+-      });
++    // 1. Initial lookup of token and predecessor user
++    const handoverToken = await prisma.handoverToken.findUnique({
++      where: { token },
++      include: { user: true },
++    });
+ 
+-      if (!handoverToken) {
+-        throw new Error("TOKEN_NOT_FOUND");
+-      }
++    if (!handoverToken) {
++      return NextResponse.json(
++        { success: false, error: "Handover invitation token not found." },
++        { status: 404 }
++      );
++    }
+ 
+-      if (handoverToken.usedAt !== null) {
+-        throw new Error("TOKEN_ALREADY_USED");
+-      }
++    if (handoverToken.usedAt !== null) {
++      return NextResponse.json(
++        { success: false, error: "This handover invitation has already been claimed." },
++        { status: 409 }
++      );
++    }
+ 
+-      if (new Date() > handoverToken.expiresAt) {
+-        throw new Error("TOKEN_EXPIRED");
+-      }
++    if (new Date() > handoverToken.expiresAt) {
++      return NextResponse.json(
++        { success: false, error: "This handover invitation has expired. Please request a new invitation from your predecessor." },
++        { status: 410 }
++      );
++    }
+ 
+-      if (!handoverToken.user || handoverToken.user.deletedAt !== null) {
+-        throw new Error("PREDECESSOR_INACTIVE");
+-      }
++    if (!handoverToken.user || handoverToken.user.deletedAt !== null) {
++      return NextResponse.json(
++        { success: false, error: "Predecessor account is no longer active." },
++        { status: 403 }
++      );
++    }
+ 
+-      // Ensure no conflicting active user exists with the successor email
+-      const emailCollision = await tx.user.findFirst({
+-        where: {
+-          email: handoverToken.successorEmail,
+-          id: { not: handoverToken.userId },
+-        },
+-      });
++    // 2. Ensure no conflicting active user exists with the successor email
++    const emailCollision = await prisma.user.findFirst({
++      where: {
++        email: handoverToken.successorEmail,
++        id: { not: handoverToken.userId },
++      },
++    });
+ 
+-      if (emailCollision) {
+-        throw new Error("EMAIL_CONFLICT");
+-      }
++    if (emailCollision) {
++      return NextResponse.json(
++        { success: false, error: "An active account with this successor email already exists in the system." },
++        { status: 400 }
++      );
++    }
+ 
+-      // 1. Mark token as claimed
+-      await tx.handoverToken.update({
+-        where: { id: handoverToken.id },
+-        data: { usedAt: new Date() },
+-      });
++    // 3. Strict Atomic Test-and-Set Lock on the HandoverToken
++    // Single atomic SQL update statement: eliminates SQLite lock contention & Rust Quaint panic
++    const claimLock = await prisma.handoverToken.updateMany({
++      where: {
++        id: handoverToken.id,
++        usedAt: null,
++        expiresAt: { gt: new Date() },
++      },
++      data: {
++        usedAt: new Date(),
++      },
++    });
+ 
+-      // 2. Overwrite User credentials & personal identity in-place
+-      // Crucial: User.id, role, organization, designation, district, bio, and all relational foreign keys
+-      // (challenges, proposals, funding commitments, audit logs, messages) REMAIN 100% PRESERVED.
+-      const userResult = await tx.user.update({
++    // If count === 0: Another concurrent racer claimed it first -> HTTP 409 Conflict
++    if (claimLock.count === 0) {
++      return NextResponse.json(
++        { success: false, error: "This handover invitation has already been claimed." },
++        { status: 409 }
++      );
++    }
++
++    // 4. Guaranteed exclusive winner: Overwrite User credentials & personal identity in-place
++    let updatedUser;
++    try {
++      updatedUser = await prisma.user.update({
+         where: { id: handoverToken.userId },
+         data: {
+           name: successorName,
+           email: handoverToken.successorEmail,
+           passwordHash: newPasswordHash,
+           twoFactorEnabled: false, // Reset 2FA to prevent successor lockout
+           twoFactorSecret: null,
+           failedLoginAttempts: 0,
+           lockoutUntil: null,
+           emailVerified: new Date(),
+           status: "ACTIVE",
+           updatedAt: new Date(),
+         },
+       });
+ 
+-      // 3. Create statutory AuditLog entry
+-      await tx.auditLog.create({
++      // 5. Create statutory AuditLog entry
++      await prisma.auditLog.create({
+         data: {
+-          userId: userResult.id,
++          userId: updatedUser.id,
+           action: "HANDOVER_CLAIMED",
+           resource: "User",
+-          resourceId: userResult.id,
++          resourceId: updatedUser.id,
+           ipAddress: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown",
+           userAgent: req.headers.get("user-agent") || "unknown",
+           oldState: JSON.stringify({
+             predecessorName: handoverToken.user.name,
+             predecessorEmail: handoverToken.user.email,
+           }),
+           newState: JSON.stringify({
+             successorName,
+             successorEmail: handoverToken.successorEmail,
+             claimedAt: new Date().toISOString(),
+           }),
+         },
+       });
+-
+-      return userResult;
+-    });
++    } catch (mutationError: any) {
++      // Rollback claim lock if mutation failed unexpectedly to prevent orphaning the token
++      await prisma.handoverToken.updateMany({
++        where: { id: handoverToken.id, usedAt: { not: null } },
++        data: { usedAt: null },
++      }).catch(() => {});
++      throw mutationError;
++    }
+@@ -166,39 +166,5 @@
+   } catch (error: any) {
+     console.error("[Handover Claim Error]:", error);
+ 
+-    if (error.message === "TOKEN_NOT_FOUND") {
+-      return NextResponse.json(
+-        { success: false, error: "Handover invitation token not found." },
+-        { status: 404 }
+-      );
+-    }
+-    if (error.message === "TOKEN_ALREADY_USED") {
+-      return NextResponse.json(
+-        { success: false, error: "This handover invitation has already been claimed." },
+-        { status: 409 }
+-      );
+-    }
+-    if (error.message === "TOKEN_EXPIRED") {
+-      return NextResponse.json(
+-        { success: false, error: "This handover invitation has expired. Please request a new invitation from your predecessor." },
+-        { status: 410 }
+-      );
+-    }
+-    if (error.message === "PREDECESSOR_INACTIVE") {
+-      return NextResponse.json(
+-        { success: false, error: "Predecessor account is no longer active." },
+-        { status: 403 }
+-      );
+-    }
+-    if (error.message === "EMAIL_CONFLICT") {
+-      return NextResponse.json(
+-        { success: false, error: "An active account with this successor email already exists in the system." },
+-        { status: 400 }
+-      );
+-    }
+-
+     return NextResponse.json(
+       { success: false, error: "Failed to claim account handover due to an internal server error." },
+       { status: 500 }
+     );

@@ -1,0 +1,17 @@
+{
+  "name": "Smart Study and Innovation Portal",
+  "short_name": "Smart Study",
+  "description": "A digital platform crowdsourcing challenges and facilitating collaborative problem solving across Jharkhand.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,287 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// MODELS (Enums: UserRole, UserStatus, ChallengeStatus, ProposalStatus, FundingStatus, FundingType)
+// Enums are validated in application layer & Zod schemas for SQLite compatibility
+// -----------------------------------------------------------------------------
+
+model User {
+  id                  String      @id @default(cuid())
+  email               String?     @unique
+  phone               String?     @unique
+  passwordHash        String
+  role                String      @default("CITIZEN") // UserRole: GOV, UNIVERSITY, INDUSTRY, CITIZEN, EXPERT
+  status              String      @default("ACTIVE")   // UserStatus: ACTIVE, PENDING, LOCKED, SUSPENDED
+
+  // Profile Fields
+  name                String
+  organization        String?
+  designation         String?
+  district            String?
+  bio                 String?
+  profileUrl          String?
+
+  // Verification & Security
+  emailVerified       DateTime?
+  phoneVerified       DateTime?
+  twoFactorEnabled    Boolean     @default(false)
+  twoFactorSecret     String?
+  failedLoginAttempts Int         @default(0)
+  lockoutUntil        DateTime?
+
+  // Timestamps & Soft Delete
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  deletedAt           DateTime?
+
+  // Relations
+  reportedChallenges  Challenge[]         @relation("ReportedBy")
+  assignedChallenges  Challenge[]         @relation("AssignedTo")
+  claimedChallenges   Challenge[]         @relation("ClaimedChallenges")
+  nodalReviewedChallenges Challenge[]    @relation("NodalOfficerChallenges")
+  submittedProposals  Proposal[]          @relation("SubmittedBy")
+  fundingCommitments  FundingCommitment[] @relation("IndustryUser")
+  auditLogs           AuditLog[]          @relation("UserAuditLogs")
+  
+  sentMessages        ChatMessage[]       @relation("SentMessages")
+  createdMicroTasks   MicroTask[]         @relation("CreatedMicroTasks")
+  assignedMicroTasks  MicroTask[]         @relation("AssignedMicroTasks")
+  handoverTokens      HandoverToken[]
+
+  @@index([role, status])
+  @@index([district])
+  @@index([deletedAt])
+}
+
+model Challenge {
+  id                   String          @id @default(cuid())
+  publicTrackingId     String          @unique // e.g. "IN-GR-2026-9842" or "JHR-2026-842"
+  title                String
+  description          String
+  domain               String          // "Water Management", "Agriculture", "Healthcare", "Energy", etc.
+  district             String          // "Dhanbad", "Gumla", "Simdega", "Ranchi", etc.
+  location             String          // Block / Village coordinates
+  urgency              String          @default("MEDIUM") // UrgencyLevel: CRITICAL, HIGH, MEDIUM, LOW
+  status               String          @default("REPORTED") // ChallengeStatus: REPORTED, CITIZEN_VERIFIED, UNDER_REVIEW, OPEN_FOR_PROPOSALS, IN_PROGRESS, RESOLVED, CLOSED
+
+  // 3-Track Problem Triage System Fields
+  track                String          @default("TRACK_A_INNOVATION")
+  trackRouting         String?
+  triageReasoning      String?
+  triageConfidence     Float?
+  targetEntityLevel    String?
+
+  // Reporter & Assignment Relations
+  reportedById         String
+  reportedBy           User            @relation("ReportedBy", fields: [reportedById], references: [id])
+  assignedToId         String?
+  assignedTo           User?           @relation("AssignedTo", fields: [assignedToId], references: [id])
+  assignedInstitute    String?         // e.g. "IIT ISM Dhanbad"
+
+  // Evidence & Verification
+  evidence             String?         // JSON string: Media URLs, telemetry (pH, TDS, Fe)
+  citizenVerified      Boolean         @default(false)
+  duplicateOfId        String?         // ID of the canonical challenge if this is a duplicate
+  duplicateOf          Challenge?      @relation("Duplicates", fields: [duplicateOfId], references: [id], onDelete: SetNull)
+  duplicates           Challenge[]     @relation("Duplicates")
+  verifiedByCount      Int             @default(0)
+  escalationLevel      Int             @default(0) // 0: Normal, 1: Nodal Officer, 2: District Collector, 3: Chief Secretary
+  slaDeadline          DateTime?
+  aiConfidence         Float?
+  aiReasoning          String?
+
+  // District Nodal Officer Triage & University Claim Fields
+  nodalStatus          String          @default("pending") // "pending", "rejected", "diverted_to_gov", "routed_to_academia"
+  rejectionReason      String?         // Mandatory when nodalStatus == "rejected"
+  divertedTarget       String?         // Target government body (e.g. "PWD", "Municipal Corporation")
+  divertedAt           DateTime?       // Timestamp when diverted to government body
+  matchedUniversities  String?         // JSON string: Array of 3 AI-matched universities
+  claimedById          String?         // Foreign key to User (University PI)
+  claimedBy            User?           @relation("ClaimedChallenges", fields: [claimedById], references: [id], onDelete: SetNull)
+  claimedInstitute     String?         // Name of the claiming university
+  claimedAt            DateTime?       // Timestamp when challenge was claimed (enforces atomic race condition)
+  nodalOfficerId       String?         // Foreign key to User (Nodal Officer who triaged)
+  nodalOfficer         User?           @relation("NodalOfficerChallenges", fields: [nodalOfficerId], references: [id], onDelete: SetNull)
+  nodalReviewedAt      DateTime?       // Timestamp of Nodal Officer triage review
+
+  // Timestamps & Soft Delete
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  deletedAt            DateTime?
+
+  // Relations
+  proposals            Proposal[]
+  auditLogs            AuditLog[]
+  microTasks           MicroTask[]
+
+  @@index([status, domain])
+  @@index([district, urgency])
+  @@index([track, status])
+  @@index([track, district])
+  @@index([nodalStatus])
+  @@index([claimedById])
+  @@index([nodalOfficerId])
+  @@index([deletedAt])
+  @@index([publicTrackingId])
+}
+
+model Proposal {
+  id                 String          @id @default(cuid())
+  proposalRef        String          @unique // e.g. "PR-102", "PR-104"
+  challengeId        String
+  challenge          Challenge       @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  
+  submittedById      String
+  submittedBy        User            @relation("SubmittedBy", fields: [submittedById], references: [id])
+  universityName     String          // "IIT ISM Dhanbad", "Birsa Agricultural University", etc.
+  
+  title              String
+  abstract           String
+  methodology        String
+  budget             Float           @default(0.0)
+  timelineMonths     Int             @default(6)
+  stage              String          @default("Prototype Ready") // "Research Phase", "Prototype Ready", "Pilot Implementation"
+  attachedDocs       String?         // JSON string of attachments
+
+  status             String          @default("SUBMITTED") // ProposalStatus: DRAFT, SUBMITTED, UNDER_REVIEW, SHORTLISTED, APPROVED, REJECTED, FUNDED
+
+  // AI-to-Industry Matching & Race Condition Claim Fields
+  matchedIndustries  String?         // JSON string: Array of 3 AI-matched industry partners
+  claimedIndustryId  String?         // Foreign key to User (Industry partner who claimed)
+  claimedIndustryName String?        // Name of the claiming industry partner
+  industryClaimStatus String         @default("OPEN") // "OPEN", "CLAIMED", "FUNDED"
+  industryClaimedAt  DateTime?       // Timestamp when industry partner claimed (atomic lock)
+
+  // Timestamps & Soft Delete
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  deletedAt          DateTime?
+
+  // Relations
+  fundingCommitments FundingCommitment[]
+  chatMessages       ChatMessage[]
+
+  @@index([challengeId, status])
+  @@index([submittedById])
+  @@index([claimedIndustryId])
+  @@index([industryClaimStatus])
+  @@index([deletedAt])
+}
+
+model FundingCommitment {
+  id                 String          @id @default(cuid())
+  escrowRef          String          @unique // e.g. "JH-ESCROW-2026-CSR-9842"
+  proposalId         String
+  proposal           Proposal        @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  industryUserId     String
+  industryUser       User            @relation("IndustryUser", fields: [industryUserId], references: [id])
+  corporateName      String          // "Tata Steel CSR Division", "Coal India CSR Trust"
+  panNumber          String?         // Masked PAN or Registration ID
+  csrRegistrationNo  String?         // e.g. "CSR0001842"
+
+  amount             Float           @default(0.0)
+  type               String          @default("CSR")     // FundingType: CSR, GRANT, EQUITY, MENTORSHIP_ONLY
+  status             String          @default("PLEDGED") // FundingStatus: PLEDGED, ESCROWED, DISBURSED, COMPLETED, CANCELLED
+
+  notes              String?
+  tranches           String?         // JSON string: 30% DPR, 40% Lab Pilot, 30% Collector Sign-off
+  mouSigned          Boolean         @default(false)
+  mouSignedAt        DateTime?
+
+  // Timestamps & Soft Delete
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  deletedAt          DateTime?
+
+  @@index([proposalId, status])
+  @@index([industryUserId])
+  @@index([deletedAt])
+}
+
+model AuditLog {
+  id           String     @id @default(cuid())
+  userId       String?
+  user         User?      @relation("UserAuditLogs", fields: [userId], references: [id], onDelete: SetNull)
+
+  action       String     // "CHALLENGE_CREATED", "PROPOSAL_SUBMITTED", "ESCROW_COMMITTED", "SLA_ESCALATED", "AUTH_FAILURE"
+  resource     String     // "Challenge", "Proposal", "FundingCommitment", "User"
+  resourceId   String
+  challengeId  String?
+  challenge    Challenge? @relation(fields: [challengeId], references: [id], onDelete: SetNull)
+
+  oldState     String?    // JSON string
+  newState     String?    // JSON string
+
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime   @default(now())
+
+  @@index([resource, resourceId])
+  @@index([userId, action])
+  @@index([challengeId])
+  @@index([createdAt])
+}
+
+model ChatMessage {
+  id          String    @id @default(cuid())
+  senderId    String
+  sender      User      @relation("SentMessages", fields: [senderId], references: [id])
+  
+  proposalId  String
+  proposal    Proposal  @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  
+  content     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([proposalId, createdAt])
+  @@index([senderId])
+}
+
+model MicroTask {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  skills      String    
+  status      String    @default("OPEN") // OPEN, ASSIGNED, COMPLETED
+  
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  
+  createdById String
+  createdBy   User      @relation("CreatedMicroTasks", fields: [createdById], references: [id])
+
+  assignedToId String?
+  assignedTo   User?    @relation("AssignedMicroTasks", fields: [assignedToId], references: [id])
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([challengeId, status])
+  @@index([assignedToId])
+}
+
+model HandoverToken {
+  id             String    @id @default(cuid())
+  token          String    @unique
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  successorEmail String
+  expiresAt      DateTime
+  usedAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
